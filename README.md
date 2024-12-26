@@ -113,8 +113,8 @@ The following libraries are required to run the application. Each serves a speci
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/scorpionTaj/chat-with-llama2.git
-   cd chat-with-llama2
+   git clone https://github.com/scorpionTaj/Chat-with-LLaMA-2-and-PDFs.git
+   cd Chat-with-LLaMA-2-and-PDFs
    ```
 
 2. Install dependencies:
