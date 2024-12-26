@@ -4,7 +4,7 @@ This project provides a Streamlit-based web application that allows users to cha
 
 ### Application Interface
 
-![App Interface](image.png))
+![App Interface](image.png)
 
 ## Table of Contents
 
