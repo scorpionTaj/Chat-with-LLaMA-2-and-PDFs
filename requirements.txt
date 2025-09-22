@@ -1,7 +1,10 @@
 streamlit
 Python-dotenv
 PyPDF2
-langchain
+langchain-community
 transformers
 faiss-cpu
 sentence-transformers
+accelerate
+langchain-huggingface
+bitsandbytes

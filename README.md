@@ -69,7 +69,7 @@ The following libraries are required to run the application. Each serves a speci
 
 #### 2. **`python-dotenv`**:
 
-![python-dotenv Logo](https://tse4.mm.bing.net/th?id=OIP.xTFP-bt_AmBsbGCPUPn32gHaEK&pid=Api)
+![python-dotenv Logo](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHaNT3Fi8RMNUpPDk-Zddeo2FTvDN3Sye5AA&s)
 
 - To load environment variables, such as Hugging Face API tokens, from a `.env` file.
 
@@ -149,11 +149,11 @@ The following libraries are required to run the application. Each serves a speci
 
 ### **For Model Selection**
 
-| Model                                      | Suitable Hardware              | Description                                   |
-| ------------------------------------------ | ------------------------------ | --------------------------------------------- |
-| `google/flan-t5-small`                     | CPU                            | Lightweight model, ideal for slower machines. |
-| `meta-llama/Llama-2-7b-chat-hf`            | Medium GPUs (e.g., NVIDIA T4)  | Robust model for conversational AI.           |
-| `deepseek-ai/DeepSeek-R1-Distill-Qwen-32B` | High-end GPUs (e.g., RTX 4090) | High-performance model for advanced GPUs.     |
+| Model                                      | Suitable Hardware                       | Description                                   |
+| ------------------------------------------ | --------------------------------------- | --------------------------------------------- |
+| `google/flan-t5-small`                     | CPU                                     | Lightweight model, ideal for slower machines. |
+| `meta-llama/Llama-2-7b-chat-hf`            | Medium GPUs (e.g., NVIDIA T4, GTX 1650) | Robust model for conversational AI.           |
+| `deepseek-ai/DeepSeek-R1-Distill-Qwen-32B` | High-end GPUs (e.g., RTX 4090)          | High-performance model for advanced GPUs.     |
 
 ### **For Embedding Model Selection**
 
@@ -195,8 +195,8 @@ The `get_text_chunks` function splits large text into smaller, overlapping chunk
 def get_text_chunks(text):
     text_splitter = CharacterTextSplitter(
         separator="\n",
-        chunk_size=1000,
-        chunk_overlap=200,
+        chunk_size=250,
+        chunk_overlap=25,
         length_function=len
     )
     return text_splitter.split_text(text)
@@ -266,6 +266,15 @@ def main():
   ```bash
   pip install -r requirements.txt
   ```
+
+---
+
+## Recent Updates
+
+- **Model Optimization for GTX 1650**: Updated default models to `sentence-transformers/all-MiniLM-L6-v2` for embeddings and `meta-llama/Llama-2-7b-chat-hf` for LLM, optimized for 4GB VRAM GPUs.
+- **Chunk Size Adjustment**: Reduced text chunk size to 250 with 25 overlap to prevent sequence length errors with embedding models.
+- **Deprecation Fixes**: Updated deprecated `torch_dtype` to `dtype`, and replaced `ConversationBufferMemory` with `ConversationBufferWindowMemory` for better compatibility.
+- **Import Fixes**: Recreated `htmlTemplates.py` to resolve import errors.
 
 ---
 

@@ -2,12 +2,19 @@ import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.llms import HuggingFacePipeline
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_huggingface import HuggingFacePipeline
 from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferMemory
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+from langchain.memory import ConversationBufferWindowMemory
+import torch
+from transformers import (
+    AutoTokenizer,
+    AutoModelForCausalLM,
+    AutoModelForSeq2SeqLM,
+    BitsAndBytesConfig,
+    pipeline,
+)
 from htmlTemplates import css, bot_template, user_template
 
 
@@ -42,7 +49,7 @@ def get_text_chunks(text):
         list: List of text chunks.
     """
     text_splitter = CharacterTextSplitter(
-        separator="\n", chunk_size=1000, chunk_overlap=200, length_function=len
+        separator="\n", chunk_size=250, chunk_overlap=25, length_function=len
     )
     return text_splitter.split_text(text)
 
@@ -83,8 +90,9 @@ def get_vectorstore(text_chunks):
     # embedding_model = "hkunlp/instructor-xl"
 
     # Load embeddings
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
+        model_name=embedding_model, model_kwargs={"device": device}
     )
     return FAISS.from_texts(texts=text_chunks, embedding=embeddings)
 
@@ -108,7 +116,7 @@ def get_conversation_chain(vectorstore):
     #    Uses significantly less memory and works on slower hardware.
     #    Example: "google/flan-t5-small" (77M parameters)
     # -------------------------------------------------------
-    # model_name = "google/flan-t5-small"
+    model_name = "google/flan-t5-small"
 
     # -------------------------------------------------------
     # 2. Medium GPU Model: meta-llama/Llama-2-7b-chat-hf
@@ -116,7 +124,7 @@ def get_conversation_chain(vectorstore):
     #    Works well on GPUs like NVIDIA T4 or 8-16 GB GPUs.
     #    Example: "meta-llama/Llama-2-7b-chat-hf" (7B parameters)
     # -------------------------------------------------------
-    model_name = "meta-llama/Llama-2-7b-chat-hf"
+    # model_name = "meta-llama/Llama-2-7b-chat-hf"
 
     # -------------------------------------------------------
     # 3. High-End GPU Model: meta-llama/Llama-2-13b-chat-hf
@@ -127,23 +135,42 @@ def get_conversation_chain(vectorstore):
     # model_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name, device_map="auto", torch_dtype="float32"
-    )
+    if "t5" in model_name.lower():
+        device_map = "cuda:0" if torch.cuda.is_available() else "cpu"
+        model = AutoModelForSeq2SeqLM.from_pretrained(
+            model_name, device_map=device_map, dtype=torch.float16
+        )
+        pipeline_task = "text2text-generation"
+    else:
+        tokenizer.padding_side = "left"
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype="float16",
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        )
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name, device_map="auto", quantization_config=quantization_config
+        )
+        pipeline_task = "text-generation"
 
     # Create a Hugging Face pipeline
     llm_pipeline = pipeline(
-        "text-generation", model=model, tokenizer=tokenizer, device=-1
+        pipeline_task, model=model, tokenizer=tokenizer, max_new_tokens=100
     )
 
     # Wrap pipeline in LangChain-compatible LLM
     llm = HuggingFacePipeline(pipeline=llm_pipeline)
 
     # Set up memory for conversational chain
-    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    memory = ConversationBufferWindowMemory(
+        k=100, memory_key="chat_history", return_messages=True
+    )
 
     return ConversationalRetrievalChain.from_llm(
-        llm=llm, retriever=vectorstore.as_retriever(), memory=memory
+        llm=llm,
+        retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
+        memory=memory,
     )
 
 
@@ -161,7 +188,7 @@ def handle_userinput(user_question):
         st.warning("Please process documents first!")
         return
 
-    response = st.session_state.conversation({"question": user_question})
+    response = st.session_state.conversation.invoke({"question": user_question})
     st.session_state.chat_history = response["chat_history"]
 
     # Display the chat messages

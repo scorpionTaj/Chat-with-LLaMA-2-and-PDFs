@@ -1,4 +1,4 @@
-css = '''
+﻿css = '''
 <style>
 /* Chat container styling */
 .chat-message {
