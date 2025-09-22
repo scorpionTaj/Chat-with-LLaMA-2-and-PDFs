@@ -170,16 +170,16 @@ The following libraries are required to run the application. Each serves a speci
 
 ### **For Model Selection**
 
-| Model                                | Suitable Hardware | Description                                          |
-| ------------------------------------ | ----------------- | ---------------------------------------------------- |
-| `microsoft/phi-3.5-mini-instruct`    | 4GB VRAM <=       | ~3.8B params, strong quality, edge-friendly.         |
-| `microsoft/phi-3-mini-4k-instruct`   | 4GB VRAM <=       | Previous gen, fast.                                  |
-| `Qwen/Qwen2.5-1.5B-Instruct`         | 4GB VRAM <=       | ~1.5B params, tiny, surprisingly capable, very fast. |
-| `Qwen/Qwen2.5-3B-Instruct`           | 4GB VRAM <=       | ~3B params, fits 4-bit with headroom.                |
-| `TinyLlama/TinyLlama-1.1B-Chat-v1.0` | 4GB VRAM <=       | Speed over quality.                                  |
-| `google/gemma-2-2b-it`               | 4GB VRAM <=       | ~2B params, compact, decent; use int4.               |
-| `mistralai/Mistral-7B-Instruct-v0.3` | 4GB VRAM <=       | ~7B params, needs careful memory management.         |
-| `google/flan-t5-small`               | CPU               | ~77M params, lightweight CPU model.                  |
+| Model                                | Suitable Hardware  | Description                                          |
+| ------------------------------------ | ------------------ | ---------------------------------------------------- |
+| `microsoft/phi-3.5-mini-instruct`    | 4GB VRAM <=        | ~3.8B params, strong quality, edge-friendly.         |
+| `microsoft/phi-3-mini-4k-instruct`   | 4GB VRAM <=        | Previous gen, fast.                                  |
+| `Qwen/Qwen2.5-1.5B-Instruct`         | 4GB VRAM <=        | ~1.5B params, tiny, surprisingly capable, very fast. |
+| `Qwen/Qwen2.5-3B-Instruct`           | 4GB VRAM <=        | ~3B params, fits 4-bit with headroom.                |
+| `TinyLlama/TinyLlama-1.1B-Chat-v1.0` | 4GB VRAM <=        | Speed over quality.                                  |
+| `google/gemma-2-2b-it`               | 4GB VRAM <=        | ~2B params, compact, decent; use int4.               |
+| `mistralai/Mistral-7B-Instruct-v0.3` | 4GB VRAM + Offload | ~7B params, needs careful memory management.         |
+| `google/flan-t5-small`               | CPU                | ~77M params, lightweight CPU model.                  |
 
 ### **For Embedding Model Selection**
 
