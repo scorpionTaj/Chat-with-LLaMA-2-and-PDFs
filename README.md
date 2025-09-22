@@ -37,19 +37,40 @@ This project provides a Streamlit-based web application that allows users to cha
 4. **Conversational AI with LLaMA-2**:
 
    - Integrates conversational AI models using the Hugging Face Transformers library.
-   - Select from models based on your hardware capabilities:
-     - **CPU-Optimized**: `google/flan-t5-small`
-     - **Medium GPU**: `meta-llama/Llama-2-7b-chat-hf`
-     - **High-End GPU**: `deepseek-ai/DeepSeek-R1-Distill-Qwen-32B`
+   - Select from lightweight models optimized for GTX 1650:
+     - **microsoft/phi-3.5-mini-instruct** (~3.8B parameters)
+     - **microsoft/phi-3-mini-4k-instruct** (previous gen, fast)
+     - **Qwen/Qwen2.5-1.5B-Instruct** (tiny, very fast)
+     - **Qwen/Qwen2.5-3B-Instruct** (fits 4-bit)
+     - **TinyLlama/TinyLlama-1.1B-Chat-v1.0** (speed over quality)
+     - **google/gemma-2-2b-it** (compact, int4 recommended)
+     - **mistralai/Mistral-7B-Instruct-v0.3** (needs offload, borderline)
 
 5. **Customizable Embeddings**:
 
-   - Select from lightweight, medium, or high-performance embedding models:
-     - **CPU-Optimized**: `sentence-transformers/all-MiniLM-L6-v2`
-     - **Medium GPU**: `hkunlp/instructor-large`
-     - **High-End GPU**: `hkunlp/instructor-xl`
+   - Select from efficient embedding models:
+     - **BAAI/bge-small-en-v1.5** (fast English retrieval)
+     - **intfloat/e5-small-v2** (reliable)
+     - **thenlper/gte-small** (lightweight recall)
+     - **nomic-ai/nomic-embed-text-v1.5** (general-purpose)
+     - **intfloat/multilingual-e5-small** (multilingual support)
+     - **sentence-transformers/all-MiniLM-L6-v2** (balanced)
 
-6. **Streamlit Web Interface**:
+6. **Conversation Management**:
+
+   - Clear chat history or reset the entire conversation.
+   - Status indicators for document processing state.
+
+7. **Advanced Features**:
+
+   - Model selection (LLM and embeddings) from UI.
+   - Configurable response length.
+   - Document statistics display.
+   - Chat history download.
+   - Source document references for answers.
+   - Text preview before processing.
+
+8. **Streamlit Web Interface**:
    - Upload PDFs, ask questions, and view answers interactively.
    - Sidebar for document uploads and processing.
 
@@ -149,24 +170,33 @@ The following libraries are required to run the application. Each serves a speci
 
 ### **For Model Selection**
 
-| Model                                      | Suitable Hardware                       | Description                                   |
-| ------------------------------------------ | --------------------------------------- | --------------------------------------------- |
-| `google/flan-t5-small`                     | CPU                                     | Lightweight model, ideal for slower machines. |
-| `meta-llama/Llama-2-7b-chat-hf`            | Medium GPUs (e.g., NVIDIA T4, GTX 1650) | Robust model for conversational AI.           |
-| `deepseek-ai/DeepSeek-R1-Distill-Qwen-32B` | High-end GPUs (e.g., RTX 4090)          | High-performance model for advanced GPUs.     |
+| Model                                | Suitable Hardware        | Description                                          |
+| ------------------------------------ | ------------------------ | ---------------------------------------------------- |
+| `microsoft/phi-3.5-mini-instruct`    | GTX 1650 (4GB)           | ~3.8B params, strong quality, edge-friendly.         |
+| `microsoft/phi-3-mini-4k-instruct`   | GTX 1650 (4GB)           | Previous gen, fast.                                  |
+| `Qwen/Qwen2.5-1.5B-Instruct`         | GTX 1650 (4GB)           | ~1.5B params, tiny, surprisingly capable, very fast. |
+| `Qwen/Qwen2.5-3B-Instruct`           | GTX 1650 (4GB)           | ~3B params, fits 4-bit with headroom.                |
+| `TinyLlama/TinyLlama-1.1B-Chat-v1.0` | GTX 1650 (4GB)           | Speed over quality.                                  |
+| `google/gemma-2-2b-it`               | GTX 1650 (4GB)           | ~2B params, compact, decent; use int4.               |
+| `mistralai/Mistral-7B-Instruct-v0.3` | GTX 1650 (4GB) + offload | ~7B params, needs careful memory management.         |
+| `google/flan-t5-small`               | CPU                      | ~77M params, lightweight CPU model.                  |
 
 ### **For Embedding Model Selection**
 
-| Embedding Model                          | Suitable Hardware              | Description                                 |
-| ---------------------------------------- | ------------------------------ | ------------------------------------------- |
-| `sentence-transformers/all-MiniLM-L6-v2` | CPU                            | Lightweight embedding model.                |
-| `hkunlp/instructor-large`                | Medium GPUs (e.g., NVIDIA T4)  | Balanced performance and accuracy.          |
-| `hkunlp/instructor-xl`                   | High-end GPUs (e.g., RTX 4090) | High-accuracy embedding for large datasets. |
+| Embedding Model                          | Suitable Hardware | Description                             |
+| ---------------------------------------- | ----------------- | --------------------------------------- |
+| `BAAI/bge-small-en-v1.5`                 | All               | Fast, strong English retrieval (384-d). |
+| `intfloat/e5-small-v2`                   | All               | Simple, reliable.                       |
+| `thenlper/gte-small`                     | All               | Lightweight, good recall.               |
+| `nomic-ai/nomic-embed-text-v1.5`         | All               | Solid general-purpose.                  |
+| `intfloat/multilingual-e5-small`         | All               | Multilingual support (AR/FR/EN).        |
+| `sentence-transformers/all-MiniLM-L6-v2` | All               | Balanced performance.                   |
 
 ### Customization
 
 - **Change Models**: Modify `model_name` in `get_conversation_chain` for different conversational models.
 - **Change Embeddings**: Update `embedding_model` in `get_vectorstore` for different embedding models.
+- **VRAM Considerations**: For GTX 1650 (4GB), stick to models ≤3.8B parameters. Larger models may cause out-of-memory errors.
 
 ---
 
@@ -271,10 +301,13 @@ def main():
 
 ## Recent Updates
 
-- **Model Optimization for GTX 1650**: Updated default models to `sentence-transformers/all-MiniLM-L6-v2` for embeddings and `meta-llama/Llama-2-7b-chat-hf` for LLM, optimized for 4GB VRAM GPUs.
+- **Model Optimization for GTX 1650**: Updated model selection to lightweight LLMs (~1.5B-3.8B) and efficient embeddings suitable for 4GB VRAM, including Phi-3.5, Qwen2.5, Gemma-2, and optimized embedding models like BGE-small and E5-small.
 - **Chunk Size Adjustment**: Reduced text chunk size to 250 with 25 overlap to prevent sequence length errors with embedding models.
-- **Deprecation Fixes**: Updated deprecated `torch_dtype` to `dtype`, and replaced `ConversationBufferMemory` with `ConversationBufferWindowMemory` for better compatibility.
+- **Deprecation Fixes**: Updated deprecated `torch_dtype` to `dtype`, and replaced `ConversationBufferMemory` with `ConversationSummaryBufferMemory` for better compatibility.
 - **Import Fixes**: Recreated `htmlTemplates.py` to resolve import errors.
+- **UI Update**: Replaced custom HTML chat interface with built-in Streamlit chat components for better reliability and simplicity.
+- **Layout Optimization**: Improved app layout with columns, status indicators, reset buttons, and enhanced sidebar using integrated Streamlit functions.
+- **Advanced Features**: Added model selection, document stats, chat download, source references, text preview, and configurable settings.
 
 ---
 
