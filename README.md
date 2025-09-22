@@ -37,7 +37,7 @@ This project provides a Streamlit-based web application that allows users to cha
 4. **Conversational AI with LLaMA-2**:
 
    - Integrates conversational AI models using the Hugging Face Transformers library.
-   - Select from lightweight models optimized for GTX 1650:
+   - Select from lightweight models optimized for 4 GB VRAM or More:
      - **microsoft/phi-3.5-mini-instruct** (~3.8B parameters)
      - **microsoft/phi-3-mini-4k-instruct** (previous gen, fast)
      - **Qwen/Qwen2.5-1.5B-Instruct** (tiny, very fast)
@@ -170,16 +170,16 @@ The following libraries are required to run the application. Each serves a speci
 
 ### **For Model Selection**
 
-| Model                                | Suitable Hardware        | Description                                          |
-| ------------------------------------ | ------------------------ | ---------------------------------------------------- |
-| `microsoft/phi-3.5-mini-instruct`    | GTX 1650 (4GB)           | ~3.8B params, strong quality, edge-friendly.         |
-| `microsoft/phi-3-mini-4k-instruct`   | GTX 1650 (4GB)           | Previous gen, fast.                                  |
-| `Qwen/Qwen2.5-1.5B-Instruct`         | GTX 1650 (4GB)           | ~1.5B params, tiny, surprisingly capable, very fast. |
-| `Qwen/Qwen2.5-3B-Instruct`           | GTX 1650 (4GB)           | ~3B params, fits 4-bit with headroom.                |
-| `TinyLlama/TinyLlama-1.1B-Chat-v1.0` | GTX 1650 (4GB)           | Speed over quality.                                  |
-| `google/gemma-2-2b-it`               | GTX 1650 (4GB)           | ~2B params, compact, decent; use int4.               |
-| `mistralai/Mistral-7B-Instruct-v0.3` | GTX 1650 (4GB) + offload | ~7B params, needs careful memory management.         |
-| `google/flan-t5-small`               | CPU                      | ~77M params, lightweight CPU model.                  |
+| Model                                | Suitable Hardware | Description                                          |
+| ------------------------------------ | ----------------- | ---------------------------------------------------- |
+| `microsoft/phi-3.5-mini-instruct`    | 4GB VRAM <=       | ~3.8B params, strong quality, edge-friendly.         |
+| `microsoft/phi-3-mini-4k-instruct`   | 4GB VRAM <=       | Previous gen, fast.                                  |
+| `Qwen/Qwen2.5-1.5B-Instruct`         | 4GB VRAM <=       | ~1.5B params, tiny, surprisingly capable, very fast. |
+| `Qwen/Qwen2.5-3B-Instruct`           | 4GB VRAM <=       | ~3B params, fits 4-bit with headroom.                |
+| `TinyLlama/TinyLlama-1.1B-Chat-v1.0` | 4GB VRAM <=       | Speed over quality.                                  |
+| `google/gemma-2-2b-it`               | 4GB VRAM <=       | ~2B params, compact, decent; use int4.               |
+| `mistralai/Mistral-7B-Instruct-v0.3` | 4GB VRAM <=       | ~7B params, needs careful memory management.         |
+| `google/flan-t5-small`               | CPU               | ~77M params, lightweight CPU model.                  |
 
 ### **For Embedding Model Selection**
 
@@ -196,7 +196,7 @@ The following libraries are required to run the application. Each serves a speci
 
 - **Change Models**: Modify `model_name` in `get_conversation_chain` for different conversational models.
 - **Change Embeddings**: Update `embedding_model` in `get_vectorstore` for different embedding models.
-- **VRAM Considerations**: For GTX 1650 (4GB), stick to models ≤3.8B parameters. Larger models may cause out-of-memory errors.
+- **VRAM Considerations**: For 4 GB VRAM or more, stick to models ≤3.8B parameters. Larger models may cause out-of-memory errors.
 
 ---
 
@@ -301,7 +301,7 @@ def main():
 
 ## Recent Updates
 
-- **Model Optimization for GTX 1650**: Updated model selection to lightweight LLMs (~1.5B-3.8B) and efficient embeddings suitable for 4GB VRAM, including Phi-3.5, Qwen2.5, Gemma-2, and optimized embedding models like BGE-small and E5-small.
+- **Model Optimization for 4 GB VRAM or More**: Updated model selection to lightweight LLMs (~1.5B-3.8B) and efficient embeddings suitable for 4GB VRAM, including Phi-3.5, Qwen2.5, Gemma-2, and optimized embedding models like BGE-small and E5-small.
 - **Chunk Size Adjustment**: Reduced text chunk size to 250 with 25 overlap to prevent sequence length errors with embedding models.
 - **Deprecation Fixes**: Updated deprecated `torch_dtype` to `dtype`, and replaced `ConversationBufferMemory` with `ConversationSummaryBufferMemory` for better compatibility.
 - **Import Fixes**: Recreated `htmlTemplates.py` to resolve import errors.
